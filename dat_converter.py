@@ -14,19 +14,19 @@ path = "D:\Documents\Programming\Pendant_Automation\Lucas_Docs";
 os.chdir(path);
 # go to the directory
 # store hom
-og_dat_file="ASSIGNMENT-2020032214393416.DAT";
+og_dat_file=open("ASSIGNMENT-2020032214393416.DAT","r");
+print(og_dat_file.readlines());
 #open file
-line_dump_data=[];
-#arrays to store the full line of text from the
 #dat file to then be modified with string functions and changed
 
-num_lines = sum(1 for line in open(og_dat_file));
+num_lines = sum(1 for line in og_dat_file);
 #get number of lines in the file
 for j in range(num_lines):
     
-    line_dump_data[j]=og_dat_file.readline(j);
-    print(line_dump_data[j]);
+    line_dump_data=og_dat_file.readline;
+    #print(line_dump_data);
     #get raw data to be split up
+    
     new_file_name="insert fancy string indexing function here on line dump data";
     
     #get name for new dat file
@@ -34,10 +34,11 @@ for j in range(num_lines):
     #get data to be added to the new dat file
     new_file = open(new_file_name, "x");
     # Creates a new file from the one stored in the index of the array
+    
     with open(new_file, 'w') as fp: 
         pass
         # To write data to new file uncomment 
-        fp.write(file_data);
+        fp.write(new_file_data);
         
 
 #dat amount is the amount of .dat files in the list
@@ -51,4 +52,4 @@ os.chdir(home);
 
   # fdsfds
 
-
+'''
