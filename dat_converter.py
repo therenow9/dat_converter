@@ -13,7 +13,7 @@ import mysql.connector;
 import logging;
 # import for debugging
 
-working_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs";
+working_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs";#replace with dir that 
 # path of python documents fold
 save_path = "/home/jeremy/Documents/Pendant_automation/converter_tests";
 # path to save new files to
@@ -40,9 +40,6 @@ for j in range(num_lines):
     #and name combined with save path
     new_file_data = line_dump_data;
     # get data to be added to the new dat file
-    #print(new_file_name);
-    #print(new_file_data);
-    
     new_file = open(new_name_complete, "w");
     # Creates a new file from the temp vars
     new_file.write(new_file_data);
