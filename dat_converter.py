@@ -16,6 +16,7 @@ import schedule;
 import logging;
 # import for debugging
 
+
 def do_everything():
     # put it all in a function
     working_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/this_file";  # replace with dir that 
@@ -26,15 +27,23 @@ def do_everything():
     # store home
     save_path_location = "/home/jeremy/Documents/Pendant_automation/converter_tests/";
     # path to save new files to
+    exists = False;
+    # init3
     for fname in os.listdir('.'):
+        print(fname)
         if fname.endswith('.DAT'):
             # do stuff on the file
-            
+            exists = True;
+            # if its a .dat file then it exists
             break
         else:
+            exists = False;
+            # or it dodsent
+            os.remove(working_path + "/" + fname);
+            # delete file if it isn't a . DAT file
     # do stuff if a file .true doesn't exist.
     if exists == True:
-        orig_file_name = "ASSIGNMENT-2020032214393416.DAT";  # insert fancy functions to get name of file
+        orig_file_name = fname;  # insert fancy functions to get name of file
         temp_name = orig_file_name[:-3];
         # get variable for file name and var for path
         orig_file_path = working_path + "/" + orig_file_name;
