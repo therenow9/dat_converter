@@ -9,18 +9,30 @@ Created on Jun 4, 2020
 import os, sys;
 # get get os stuff and file mod functions
 import mysql.connector;
+from mysql.connector import (connection)
 # get mysql stuff
 import time;
 import schedule;
 # import for timer stuff
 import logging;
 # import for debugging
+import shutil;
+# move overflow files to 
+import atexit;
+# write code that happens if the script is terminated
+
+cnct = connection.MySQLConnection(user='jscheuerman', password='L*KCy7d4Lxa2-r',
+                                 host='10.200.0.33',
+                                 database='employees')
+# establish connection names are temporary until mysql is figured out
 
 
 def do_everything():
     # put it all in a function
     working_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/this_file";  # replace with dir that 
     # path of python documents fold
+    misplaced_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/misplaced";
+    # path for files placed in the wrong folder
     os.chdir(working_path);
     # go to the directory
     home = os.getcwd();
@@ -35,12 +47,13 @@ def do_everything():
             # do stuff on the file
             exists = True;
             # if its a .dat file then it exists
-            break
+            break;
         else:
             exists = False;
             # or it dodsent
-            os.remove(working_path + "/" + fname);
-            # delete file if it isn't a . DAT file
+            moved = shutil.move(fname, misplaced_path);
+            print("That file was not a .DAT file it has been moved to " + moved);
+            # move files that re placed and don't have a .dat extension
     # do stuff if a file .true doesn't exist.
     if exists == True:
         orig_file_name = fname;  # insert fancy functions to get name of file
@@ -81,8 +94,13 @@ def do_everything():
         # acknowlege no file is there
 
 
-schedule.every(10).seconds.do(do_everything);
+schedule.every(15).seconds.do(do_everything);
 # do it every 10 seconds
 while 1:
     schedule.run_pending();
     time.sleep(1);
+    # don't run it 50 times over
+    
+atexit.register(cnct.close());
+# makes sure the connection is always terminated if the script is terminated
+
