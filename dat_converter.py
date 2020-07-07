@@ -23,8 +23,40 @@ import atexit;
 
 cnct = connection.MySQLConnection(user='jscheuerman', password='L*KCy7d4Lxa2-r',
                                  host='10.200.0.33',
-                                 database='employees')
+                                 database='temp')
 # establish connection names are temporary until mysql is figured out
+
+class obj_dat:
+    #create object for easier organization and database management
+    #here are the fields for the mysql table
+    rec_id="        ";
+    #record identifier
+    #max length 8 
+    route_num="      ";
+    #route number
+    #max length 6
+    stop_num="    ";
+    #stop number
+    #max length 4
+    container_id="               ";
+    #specific container for this pick 
+    #max length 15
+    assign_id="                         ";
+    #assignment id for container
+    #max length 25
+    pick_area="      ";
+    #concotatenation of 3 digit stype and 3 digit pick area 
+    #max length of 6
+    pick_type="          ";
+    #for full cas a description will be sent if no description it will just say full case
+    #for split case it will always say split case
+    #max length of 10
+    juris="      ";
+    #neede for cig stamping, if not cigs then its spaces, 
+    #max length of 6
+    carton_num="  ";
+    #number of cigs in container, if not , spaces
+    #max length 2
 
 
 def do_everything():
