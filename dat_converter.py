@@ -19,16 +19,16 @@ import logging;
 import shutil;
 # move overflow files to 
 import atexit;
+import string
 # write code that happens if the script is terminated
-'''
+
 cnct = connection.MySQLConnection(user='jscheuerman', password='L*KCy7d4Lxa2-r',
                                  host='10.200.0.33',
                                  database='temp')
- establish connection names are temporary until mysql is figured out
+# establish connection names are temporary until mysql is figured out
 
 mycursor = cnct.cursor();
 # get cursor
-'''
 
 
 class obj_dat:
@@ -65,15 +65,18 @@ class obj_dat:
     # number of cigs in container, if not , spaces
     # max length 2
 
-'''
-def dat_table_create(obj_dat):
-    mycursor.execute("CREATE TABLE " + obj_dat.assign_id + "\
-    (Record_Identifier VARCHAR(8), Route_Number VARCHAR(6),\
+
+def dat_table_create(table_name):
+    # define cursor
+    mytable = ("CREATE TABLE " + table_name + "\
+     (Record_Identifier VARCHAR(8), Route_Number VARCHAR(6),\
     Stop_Number VARCHAR(4),Container_Id VARCHAR(15),Assignment_Id VARCHAR(25),\
     Pick_Area VARCHAR(6),Pick_Type VARCHAR(10),Jurisdiction VARCHAR(6),\
     Cartons_Number VARCHAR(2))");
     # create table for this file
-'''
+    mycursor.execute(mytable);
+    cnct.commit();
+    # create table and commit to database
 
 
 def dat_assign(obj_dat):
@@ -91,9 +94,6 @@ def dat_assign(obj_dat):
     obj_dat.carton_num = tem[88:90];
     # assign all fields for sql insertion
 
-# def dat_insert(obj_dat):
-    # insert data into the my sql databse
-
 
 def dat_test(obj_dat):
     # test values by printing them
@@ -107,6 +107,21 @@ def dat_test(obj_dat):
     obj_dat.pick_type + '\n' + 
     obj_dat.juris + '\n' + 
     obj_dat.carton_num);
+
+
+def dat_insert(obj_dat, table_name):
+    sql = "INSERT INTO " + table_name + " (Record_Identifier,Route_Number,\
+    Stop_Number,Container_Id,Assignment_Id,Pick_Area,Pick_Type,\
+    Jurisdiction,Cartons_Number) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)";
+    # setup table insertion
+    val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_area, obj_dat.juris, obj_dat.carton_num);
+    # setup values for insertion
+    mycursor.execute(sql, val);
+    # insert the data into the table
+    cnct.commit();
+    # commit to database
+    print(mycursor.rowcount, "data inserted");
+    # confirm data added
 
 
 def do_everything():
@@ -155,6 +170,8 @@ def do_everything():
         # get number of lines in the file
         print("Number of files to be created " + str(num_lines));
         # print number of lines
+        throw_table = dat_table_create(temp_name);
+        # create new table
         for j in range(num_lines):
             line_dump_data = all_lines[j];
             # get data from specific line 
@@ -189,6 +206,6 @@ while 1:
     schedule.run_pending();
     time.sleep(1);
     # don't run it 50 times over
-    # atexit.register(cnct.close());
+    atexit.register(cnct.close());
 # makes sure the connection is always terminated if the script is terminated
 
