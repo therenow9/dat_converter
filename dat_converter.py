@@ -19,12 +19,16 @@ import logging;
 import shutil;
 # move overflow files to 
 import atexit;
-import string
 # write code that happens if the script is terminated
-
+'''
 cnct = connection.MySQLConnection(user='jscheuerman', password='L*KCy7d4Lxa2-r',
                                  host='10.200.0.33',
                                  database='temp')
+                                 '''
+                                 
+cnct = connection.MySQLConnection(user='pendant', passwd='password',
+                                 host='127.0.0.1')
+                                 
 # establish connection names are temporary until mysql is figured out
 
 mycursor = cnct.cursor();
@@ -68,11 +72,11 @@ class obj_dat:
 
 def dat_table_create(table_name):
     # define cursor
-    mytable = ("CREATE TABLE " + table_name + "\
-     (Record_Identifier VARCHAR(8), Route_Number VARCHAR(6),\
-    Stop_Number VARCHAR(4),Container_Id VARCHAR(15),Assignment_Id VARCHAR(25),\
-    Pick_Area VARCHAR(6),Pick_Type VARCHAR(10),Jurisdiction VARCHAR(6),\
-    Cartons_Number VARCHAR(2))");
+    mytable = "CREATE TABLE " + table_name + "\
+     (Record_Identifier CHAR(8),Route_Number CHAR(6),\
+    Stop_Number CHAR(4),Container_Id CHAR(15),Assignment_Id CHAR(25),\
+    Pick_Area CHAR(6),Pick_Type CHAR(10),Jurisdiction CHAR(6),\
+    Cartons_Number CHAR(2))";
     # create table for this file
     mycursor.execute(mytable);
     cnct.commit();
@@ -93,6 +97,7 @@ def dat_assign(obj_dat):
     obj_dat.juris = tem[81:87];
     obj_dat.carton_num = tem[88:90];
     # assign all fields for sql insertion
+    return obj_dat;
 
 
 def dat_test(obj_dat):
@@ -170,7 +175,7 @@ def do_everything():
         # get number of lines in the file
         print("Number of files to be created " + str(num_lines));
         # print number of lines
-        throw_table = dat_table_create(temp_name);
+        dat_table_create(temp_name);
         # create new table
         for j in range(num_lines):
             line_dump_data = all_lines[j];
@@ -189,23 +194,24 @@ def do_everything():
             temp_dat = obj_dat();
             # create dat object for sql insertion
             temp_dat.line_dump = line_dump_data;
-            dat_assign(temp_dat);
-            # assing values for ssql insertion
-            dat_test(temp_dat);
-            
-        # os.remove(orig_file_path);
+            temp_dat = dat_assign(temp_dat);
+            # assing values for sql insertion
+            # dat_test(temp_dat);
+            dat_insert(temp_dat, temp_name);
+            # insert data into mysql database
+        os.remove(orig_file_path);
         # delete original file
     else:
         print("No file present");
         # acknowlege no file is there
 
 
-schedule.every(15).seconds.do(do_everything);
+schedule.every(7).seconds.do(do_everything);
 # do it every 10 seconds
 while 1:
     schedule.run_pending();
     time.sleep(1);
     # don't run it 50 times over
-    atexit.register(cnct.close());
+atexit.register(cnct.close);
 # makes sure the connection is always terminated if the script is terminated
 
