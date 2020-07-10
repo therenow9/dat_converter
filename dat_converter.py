@@ -26,8 +26,7 @@ cnct = connection.MySQLConnection(user='jscheuerman', password='L*KCy7d4Lxa2-r',
                                  database='temp')
                                  '''
                                  
-cnct = connection.MySQLConnection(user='pendant', passwd='password',
-                                 host='127.0.0.1')
+cnct = connection.MySQLConnection(user='pendant', password='Pendant0505', host='localhost');
                                  
 # establish connection names are temporary until mysql is figured out
 
@@ -212,6 +211,7 @@ while 1:
     schedule.run_pending();
     time.sleep(1);
     # don't run it 50 times over
+atexit.register(mycursor.close);
 atexit.register(cnct.close);
 # makes sure the connection is always terminated if the script is terminated
 
