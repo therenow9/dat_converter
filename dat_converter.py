@@ -14,8 +14,6 @@ from mysql.connector import (connection)
 import time;
 import schedule;
 # import for timer stuff
-import logging;
-# import for debugging
 import shutil;
 # move overflow files to 
 import atexit;
@@ -75,7 +73,6 @@ class obj_dat:
 
 def dat_table_create(table_name):
     # define cursor
-    print(table_name);
     mytable = "CREATE TABLE IF NOT EXISTS " + table_name + """\
     (Record_Identifier VARCHAR(8),Route_Number VARCHAR(6),
     Stop_Number VARCHAR(4),Container_Id CHAR(15),Assignment_Id VARCHAR(25),
@@ -123,14 +120,12 @@ def dat_insert(obj_dat, table_name):
     Stop_Number,Container_Id,Assignment_Id,Pick_Area,Pick_Type,
     Jurisdiction,Cartons_Number) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""");
     # setup table insertion
-    val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_area, obj_dat.juris, obj_dat.carton_num);
+    val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_area, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num);
     # setup values for insertion
     mycursor.execute(sql, val);
     # insert the data into the table
     cnct.commit();
     # commit to database
-    print(mycursor.rowcount, "data inserted");
-    # confirm data added
 
 
 def do_everything():
@@ -201,9 +196,10 @@ def do_everything():
             temp_dat.line_dump = line_dump_data;
             dat_assign(temp_dat);
             # assing values for sql insertion
-            # dat_test(temp_dat);
             dat_insert(temp_dat, table_name);
             # insert data into mysql database
+        print(table_name + " data inserted");
+        # print that data was inserted for file
         os.remove(orig_file_path);
         # delete original file
     else:
@@ -211,7 +207,7 @@ def do_everything():
         # acknowlege no file is there
 
 
-schedule.every(3).seconds.do(do_everything);
+schedule.every(15).seconds.do(do_everything);
 # do it every 10 seconds
 while 1:
     schedule.run_pending();
@@ -221,11 +217,3 @@ atexit.register(mycursor.close);
 atexit.register(cnct.close);
 # makes sure the connection is always terminated if the script is terminated
 
-'''
-mytable = "CREATE TABLE IF NOT EXISTS " + str("dat_" + table_name) + """ 
-(Record_Identifier VARCHAR(8),Route_Number VARCHAR(6),
-Stop_Number VARCHAR(4),Container_Id CHAR(15),Assignment_Id VARCHAR(25),
-Pick_Area VARCHAR(6),Pick_Type VARCHAR(10),Jurisdiction VARCHAR(6),
-Cartons_Number VARCHAR(2) ENGINE=INNODB;""";
-# create table for this file
-'''
