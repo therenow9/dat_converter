@@ -32,6 +32,10 @@ cnct = connection.MySQLConnection(user='pendant', password='Pendant0505', host='
 
 mycursor = cnct.cursor();
 # get cursor
+mycursor.execute("CREATE DATABASE IF NOT EXISTS dat_database");
+# create if it isnt there
+mycursor.execute("USE dat_database;");
+# switch to right database
 
 
 class obj_dat:
@@ -71,11 +75,12 @@ class obj_dat:
 
 def dat_table_create(table_name):
     # define cursor
-    mytable = "CREATE TABLE " + table_name + "\
-     (Record_Identifier CHAR(8),Route_Number CHAR(6),\
-    Stop_Number CHAR(4),Container_Id CHAR(15),Assignment_Id CHAR(25),\
-    Pick_Area CHAR(6),Pick_Type CHAR(10),Jurisdiction CHAR(6),\
-    Cartons_Number CHAR(2))";
+    print(table_name);
+    mytable = "CREATE TABLE IF NOT EXISTS " + table_name + """\
+    (Record_Identifier VARCHAR(8),Route_Number VARCHAR(6),
+    Stop_Number VARCHAR(4),Container_Id CHAR(15),Assignment_Id VARCHAR(25),
+    Pick_Area VARCHAR(6),Pick_Type VARCHAR(10),Jurisdiction VARCHAR(6),
+    Cartons_Number VARCHAR(2))""";
     # create table for this file
     mycursor.execute(mytable);
     cnct.commit();
@@ -114,9 +119,9 @@ def dat_test(obj_dat):
 
 
 def dat_insert(obj_dat, table_name):
-    sql = "INSERT INTO " + table_name + " (Record_Identifier,Route_Number,\
-    Stop_Number,Container_Id,Assignment_Id,Pick_Area,Pick_Type,\
-    Jurisdiction,Cartons_Number) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)";
+    sql = ("INSERT INTO " + table_name + """ (Record_Identifier,Route_Number,
+    Stop_Number,Container_Id,Assignment_Id,Pick_Area,Pick_Type,
+    Jurisdiction,Cartons_Number) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""");
     # setup table insertion
     val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_area, obj_dat.juris, obj_dat.carton_num);
     # setup values for insertion
@@ -174,7 +179,8 @@ def do_everything():
         # get number of lines in the file
         print("Number of files to be created " + str(num_lines));
         # print number of lines
-        dat_table_create(temp_name);
+        table_name = temp_name[:-1].replace("-", "_");
+        dat_table_create(table_name);
         # create new table
         for j in range(num_lines):
             line_dump_data = all_lines[j];
@@ -193,10 +199,10 @@ def do_everything():
             temp_dat = obj_dat();
             # create dat object for sql insertion
             temp_dat.line_dump = line_dump_data;
-            temp_dat = dat_assign(temp_dat);
+            dat_assign(temp_dat);
             # assing values for sql insertion
             # dat_test(temp_dat);
-            dat_insert(temp_dat, temp_name);
+            dat_insert(temp_dat, table_name);
             # insert data into mysql database
         os.remove(orig_file_path);
         # delete original file
@@ -205,7 +211,7 @@ def do_everything():
         # acknowlege no file is there
 
 
-schedule.every(7).seconds.do(do_everything);
+schedule.every(3).seconds.do(do_everything);
 # do it every 10 seconds
 while 1:
     schedule.run_pending();
@@ -215,3 +221,11 @@ atexit.register(mycursor.close);
 atexit.register(cnct.close);
 # makes sure the connection is always terminated if the script is terminated
 
+'''
+mytable = "CREATE TABLE IF NOT EXISTS " + str("dat_" + table_name) + """ 
+(Record_Identifier VARCHAR(8),Route_Number VARCHAR(6),
+Stop_Number VARCHAR(4),Container_Id CHAR(15),Assignment_Id VARCHAR(25),
+Pick_Area VARCHAR(6),Pick_Type VARCHAR(10),Jurisdiction VARCHAR(6),
+Cartons_Number VARCHAR(2) ENGINE=INNODB;""";
+# create table for this file
+'''
