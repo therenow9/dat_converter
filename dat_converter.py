@@ -3,13 +3,11 @@ Created on Jun 4, 2020
 
 @author: Jeremy Scheuerman
 '''
-
-# "D:\Documents\Programming\Pendant_Automation\Lucas_Docs";
 # /home/jeremy/Documents/Pendant_automation/Lucas_Docs
 import os, sys;
 # get get os stuff and file mod functions
 import mysql.connector;
-from mysql.connector import (connection)
+from mysql.connector import (connection);
 # get mysql stuff
 import time;
 import schedule;
@@ -18,14 +16,20 @@ import shutil;
 # move overflow files to 
 import atexit;
 # write code that happens if the script is terminated
-'''
-cnct = connection.MySQLConnection(user='jscheuerman', password='L*KCy7d4Lxa2-r',
-                                 host='10.200.0.33',
-                                 database='temp')
-                                 '''
-                                 
-cnct = connection.MySQLConnection(user='pendant', password='Pendant0505', host='localhost');
-                                 
+ 
+ # variables
+input_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/this_file";                        
+# assign path of folder where the dat files are supposed to be   
+output_path = "/home/jeremy/Documents/Pendant_automation/converter_tests/";
+# assign path to save output with dat files folder
+misplaced_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/misplaced";
+# path for files formatted incorrectly
+db_user = 'pendant';
+db_pass = 'Pendant0505';
+db_host = 'localhost';
+# insert database infromation
+
+cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host);                                                        
 # establish connection names are temporary until mysql is figured out
 
 mycursor = cnct.cursor();
@@ -129,8 +133,8 @@ def dat_insert(obj_dat, table_name):
 
 
 def do_everything():
-    # put it all in a function
-    working_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/this_file";  # replace with dir that 
+    # put it all in a functiony
+    working_path = input_path;  # replace with dir that 
     # path of python documents fold
     misplaced_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/misplaced";
     # path for files placed in the wrong folder
@@ -138,7 +142,7 @@ def do_everything():
     # go to the directory
     home = os.getcwd();
     # store home
-    save_path_location = "/home/jeremy/Documents/Pendant_automation/converter_tests/";
+    save_path_location = output_path
     # path to save new files to
     exists = False;
     # init3
@@ -153,7 +157,7 @@ def do_everything():
             exists = False;
             # or it dodsent
             moved = shutil.move(fname, misplaced_path);
-            print("That file was not a .DAT file it has been moved to " + moved);
+            print("That file was not a .DAT file, or it is formatted incorrectly it has been moved to " + moved);
             # move files that re placed and don't have a .dat extension
     # do stuff if a file .true doesn't exist.
     if exists == True:
@@ -166,42 +170,48 @@ def do_everything():
         # create save path name
         os.mkdir(save_path);
         # create new folder for dat files
-        og_dat_file = open(orig_file_name, "r");
-        # openfile
-        all_lines = og_dat_file.readlines();
-        # get read all lines variable
-        num_lines = sum(1 for line in open(orig_file_name));
-        # get number of lines in the file
-        print("Number of files to be created " + str(num_lines));
-        # print number of lines
-        table_name = temp_name[:-1].replace("-", "_");
-        dat_table_create(table_name);
-        # create new table
-        for j in range(num_lines):
-            line_dump_data = all_lines[j];
-            # get data from specific line 
-            new_file_name = line_dump_data[21:35] + ".DAT";
-            # get name for new dat file from line data 
-            new_name_complete = os.path.join(save_path, new_file_name);
-            # and name combined with save path
-            new_file_data = line_dump_data;
-            # get data to be added to the new dat file
-            new_file = open(new_name_complete, "w");
-            # Creates a new file from the temp vars
-            new_file.write(new_file_data);
-            new_file.close();
-            # if file exists then exists is true
-            temp_dat = obj_dat();
-            # create dat object for sql insertion
-            temp_dat.line_dump = line_dump_data;
-            dat_assign(temp_dat);
-            # assing values for sql insertion
-            dat_insert(temp_dat, table_name);
-            # insert data into mysql database
-        print(table_name + " data inserted");
-        # print that data was inserted for file
-        os.remove(orig_file_path);
-        # delete original file
+        if os.path.isdir(save_path):
+            print("This file has already run through the program, skipping and deleting")
+            os.remove(orig_file_path);
+            # delete original file
+        else:
+            og_dat_file = open(orig_file_name, "r");
+            # openfile
+            all_lines = og_dat_file.readlines();
+            # get read all lines variable
+            num_lines = sum(1 for line in open(orig_file_name));
+            # get number of lines in the file
+            print("Number of files to be created " + str(num_lines));
+            # print number of lines
+            table_name = temp_name[:-1].replace("-", "_");
+            dat_table_create(table_name);
+            # create new table
+            for j in range(num_lines):
+                line_dump_data = all_lines[j];
+                # get data from specific line 
+                new_file_name = line_dump_data[21:35] + ".DAT";
+                # get name for new dat file from line data 
+                new_name_complete = os.path.join(save_path, new_file_name);
+                # and name combined with save path
+                new_file_data = line_dump_data;
+                # get data to be added to the new dat file
+                new_file = open(new_name_complete, "w");
+                # Creates a new file from the temp vars
+                new_file.write(new_file_data);
+                new_file.close();
+                # if file exists then exists iprint(table_name + " data inserted");
+                # print that data was inserted for files true
+                temp_dat = obj_dat();
+                # create dat object for sql insertion
+                temp_dat.line_dump = line_dump_data;
+                dat_assign(temp_dat);
+                # assing values for sql insertion
+                dat_insert(temp_dat, table_name);
+                # insert data into mysql database
+            print(table_name + " data inserted");
+            # print that data was inserted for file
+            os.remove(orig_file_path);
+            # delete original file
     else:
         print("No file present");
         # acknowlege no file is there
