@@ -16,11 +16,11 @@ import atexit;
 # write code that happens if the script is terminated
  
 # variables
-input_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/dat_converter/input_file";                        
+deploy_input_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/dat_converter/input_file";                        
 # assign path of folder where the dat files are supposed to be   
-output_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/dat_converter/output_files/";
+deploy_output_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/dat_converter/output_files/";
 # assign path to save output with dat files folder
-check_interval = 15;
+deploy_check_interval = 15;
 # amount of time to wait in between next check IN SECONDS
 
 # database file located dat_converter/database file
@@ -134,11 +134,11 @@ def dat_insert(obj_dat, table_name):
 
 def do_everything():
     # put it all in a functiony
-    working_path = input_path;  # replace with dir that 
+    working_path = deploy_input_path;  # replace with dir that 
     # path of python documents fold
     os.chdir(working_path);
     # go to the directory
-    save_path_location = output_path
+    save_path_location = deploy_output_path
     # path to save new files to
     exists = False;
     # init3
@@ -171,9 +171,9 @@ def do_everything():
         else:
             os.mkdir(save_path);
             # create new folder for dat files
-            og_dat_file = open(orig_file_name, "r");
+            orig_dat_file = open(orig_file_name, "r");
             # openfile
-            all_lines = og_dat_file.readlines();
+            all_lines = orig_dat_file.readlines();
             # get read all lines variable
             num_lines = sum(1 for line in open(orig_file_name));
             # get number of lines in the file
@@ -213,14 +213,14 @@ def do_everything():
         # acknowlege no file is there
 
 
-schedule.every(check_interval).seconds.do(do_everything);
+schedule.every(deploy_check_interval).seconds.do(do_everything);
 # do it every x amount of  seconds
 while 1:
     schedule.run_pending();
     time.sleep(1);
     # don't run it 50 times over
     
-atexit.register(os.chdir(input_path));
+atexit.register(os.chdir(deploy_input_path));
 # return home at termination of script just in case
 atexit.register(mycursor.close);
 atexit.register(cnct.close);
