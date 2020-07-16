@@ -1,7 +1,7 @@
 '''
-Created on Jun 4, 2020
-
 @author: Jeremy Scheuerman
+
+This software was created for Pendant Automation
 '''
 # /home/jeremy/Documents/Pendant_automation/Lucas_Docs
 import os, sys;
@@ -12,26 +12,26 @@ from mysql.connector import (connection);
 import time;
 import schedule;
 # import for timer stuff
-import shutil;
-# move overflow files to 
 import atexit;
 # write code that happens if the script is terminated
  
- # variables
-input_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/this_file";                        
+# variables
+input_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/dat_converter/input_file";                        
 # assign path of folder where the dat files are supposed to be   
-output_path = "/home/jeremy/Documents/Pendant_automation/converter_tests/";
+output_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/dat_converter/output_files/";
 # assign path to save output with dat files folder
-misplaced_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/misplaced";
-# path for files formatted incorrectly
-db_user = 'pendant';
+check_interval = 15;
+# amount of time to wait in between next check IN SECONDS
+
+# database file located dat_converter/database file
+db_user = 'Pendant';
 db_pass = 'Pendant0505';
 db_host = 'localhost';
 # insert database infromation
 
 cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host);                                                        
 # establish connection names are temporary until mysql is figured out
-
+print("Connected to database succesfully");
 mycursor = cnct.cursor();
 # get cursor
 mycursor.execute("CREATE DATABASE IF NOT EXISTS dat_database");
@@ -77,7 +77,7 @@ class obj_dat:
 
 def dat_table_create(table_name):
     # define cursor
-    mytable = "CREATE TABLE IF NOT EXISTS " + table_name + """\
+    mytable = "CREATE TABLE IF NOT EXISTS " + table_name + """
     (Record_Identifier VARCHAR(8),Route_Number VARCHAR(6),
     Stop_Number VARCHAR(4),Container_Id CHAR(15),Assignment_Id VARCHAR(25),
     Pick_Area VARCHAR(6),Pick_Type VARCHAR(10),Jurisdiction VARCHAR(6),
@@ -136,12 +136,8 @@ def do_everything():
     # put it all in a functiony
     working_path = input_path;  # replace with dir that 
     # path of python documents fold
-    misplaced_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/misplaced";
-    # path for files placed in the wrong folder
     os.chdir(working_path);
     # go to the directory
-    home = os.getcwd();
-    # store home
     save_path_location = output_path
     # path to save new files to
     exists = False;
@@ -156,9 +152,9 @@ def do_everything():
         else:
             exists = False;
             # or it dodsent
-            moved = shutil.move(fname, misplaced_path);
-            print("That file was not a .DAT file, or it is formatted incorrectly it has been moved to " + moved);
-            # move files that re placed and don't have a .dat extension
+            os.remove(working_path, fname);
+            print("The file " + fname + " was not a .DAT file, or it is formatted incorrectly it has been deleted from" + working_path);
+            # delete non dat files
     # do stuff if a file .true doesn't exist.
     if exists == True:
         orig_file_name = fname;  # insert fancy functions to get name of file
@@ -166,15 +162,15 @@ def do_everything():
         # get variable for file name and var for path
         orig_file_path = working_path + "/" + orig_file_name;
         # path to delete file after job is done
-        save_path = save_path_location + temp_name;
+        save_path = save_path_location + "/" + temp_name;
         # create save path name
-        os.mkdir(save_path);
-        # create new folder for dat files
-        if os.path.isdir(save_path):
+        if os.path.exists(save_path):
             print("This file has already run through the program, skipping and deleting")
             os.remove(orig_file_path);
             # delete original file
         else:
+            os.mkdir(save_path);
+            # create new folder for dat files
             og_dat_file = open(orig_file_name, "r");
             # openfile
             all_lines = og_dat_file.readlines();
@@ -217,12 +213,15 @@ def do_everything():
         # acknowlege no file is there
 
 
-schedule.every(15).seconds.do(do_everything);
-# do it every 10 seconds
+schedule.every(check_interval).seconds.do(do_everything);
+# do it every x amount of  seconds
 while 1:
     schedule.run_pending();
     time.sleep(1);
     # don't run it 50 times over
+    
+atexit.register(os.chdir(input_path));
+# return home at termination of script just in case
 atexit.register(mycursor.close);
 atexit.register(cnct.close);
 # makes sure the connection is always terminated if the script is terminated
