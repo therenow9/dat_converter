@@ -79,8 +79,8 @@ def dat_table_create(table_name):
     # define cursor
     mytable = "CREATE TABLE IF NOT EXISTS " + table_name + """
     (record_id VARCHAR(8),route_no VARCHAR(6),
-    stop_no VARCHAR(4),container_Id CHAR(15),assignment_id VARCHAR(25),
-    pick_Area VARCHAR(6),pick_type VARCHAR(10),jurisdiction VARCHAR(6),
+    stop_no VARCHAR(4),container_id CHAR(15),assignment_id VARCHAR(25),
+    pick_area VARCHAR(6),pick_type VARCHAR(10),jurisdiction VARCHAR(6),
     carton_qty VARCHAR(2))""";
     # create table for this file
     mycursor.execute(mytable);
