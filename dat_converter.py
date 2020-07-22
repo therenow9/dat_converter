@@ -15,7 +15,7 @@ import schedule;
 import atexit;
 # write code that happens if the script is terminated
  
-# variables
+# deployment variables
 deploy_input_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/dat_converter/input_file";                        
 # assign path of folder where the dat files are supposed to be   
 deploy_output_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/dat_converter/output_files/";
@@ -24,9 +24,9 @@ deploy_check_interval = 15;
 # amount of time to wait in between next check IN SECONDS
 
 # database file located dat_converter/database file
-db_user = 'Pendant';
-db_pass = 'Pendant0505';
-db_host = 'localhost';
+db_user = 'PaulCastro@eby-brown-assignment-mysql';
+db_pass = 'PC$My$SQL88';
+db_host = 'eby-brown-assignment-mysql.mysql.database.azure.com';
 # insert database infromation
 
 cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host);                                                        
@@ -34,9 +34,9 @@ cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host);
 print("Connected to database succesfully");
 mycursor = cnct.cursor();
 # get cursor
-mycursor.execute("CREATE DATABASE IF NOT EXISTS dat_database");
+mycursor.execute("CREATE DATABASE IF NOT EXISTS Assignment");
 # create if it isnt there
-mycursor.execute("USE dat_database;");
+mycursor.execute("USE Assignment;");
 # switch to right database
 
 
@@ -78,10 +78,10 @@ class obj_dat:
 def dat_table_create(table_name):
     # define cursor
     mytable = "CREATE TABLE IF NOT EXISTS " + table_name + """
-    (Record_Identifier VARCHAR(8),Route_Number VARCHAR(6),
-    Stop_Number VARCHAR(4),Container_Id CHAR(15),Assignment_Id VARCHAR(25),
-    Pick_Area VARCHAR(6),Pick_Type VARCHAR(10),Jurisdiction VARCHAR(6),
-    Cartons_Number VARCHAR(2))""";
+    (record_id VARCHAR(8),route_no VARCHAR(6),
+    stop_no VARCHAR(4),container_Id CHAR(15),assignment_id VARCHAR(25),
+    pick_Area VARCHAR(6),pick_type VARCHAR(10),jurisdiction VARCHAR(6),
+    carton_qty VARCHAR(2))""";
     # create table for this file
     mycursor.execute(mytable);
     cnct.commit();
@@ -120,9 +120,9 @@ def dat_test(obj_dat):
 
 
 def dat_insert(obj_dat, table_name):
-    sql = ("INSERT INTO " + table_name + """ (Record_Identifier,Route_Number,
-    Stop_Number,Container_Id,Assignment_Id,Pick_Area,Pick_Type,
-    Jurisdiction,Cartons_Number) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""");
+    sql = ("INSERT INTO " + table_name + """ (record_id,route_no,
+    stop_no,container_id,assignment_id,pick_area,pick_type,
+    jurisdiction,carton_qty) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""");
     # setup table insertion
     val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_area, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num);
     # setup values for insertion
