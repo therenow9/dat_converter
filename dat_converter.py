@@ -132,6 +132,15 @@ def dat_insert(obj_dat, table_name):
     # commit to database
 
 
+def stamp_data(obj_dat):
+    juris = obj_dat.juris.strip().zfill(6);
+    cart = obj_dat.carton_num.strip().zfill(2);
+    # trim and zero pad the vars
+    data = juris + "," + "000000" + "," + "000000" + "," + cart;
+    return data;
+    # give it back
+    
+
 def do_everything():
     # put it all in a functiony
     working_path = deploy_input_path;  # replace with dir that 
@@ -177,34 +186,45 @@ def do_everything():
             # get read all lines variable
             num_lines = sum(1 for line in open(orig_file_name));
             # get number of lines in the file
-            print("Number of files to be created " + str(num_lines));
+            print("Number of lines to be checked " + str(num_lines));
             # print number of lines
             table_name = temp_name[:-1].replace("-", "_");
             dat_table_create(table_name);
             # create new table
             for j in range(num_lines):
-                line_dump_data = all_lines[j];
-                # get data from specific line 
-                new_file_name = line_dump_data[21:35] + ".DAT";
-                # get name for new dat file from line data 
-                new_name_complete = os.path.join(save_path, new_file_name);
-                # and name combined with save path
-                new_file_data = line_dump_data;
-                # get data to be added to the new dat file
-                new_file = open(new_name_complete, "w");
-                # Creates a new file from the temp vars
-                new_file.write(new_file_data);
-                new_file.close();
-                # if file exists then exists iprint(table_name + " data inserted");
-                # print that data was inserted for files true
+                s = 0;
+                # variable for skipping files
+                ins = 0;
                 temp_dat = obj_dat();
                 # create dat object for sql insertion
+                line_dump_data = all_lines[j];
+                # get data from specific line 
                 temp_dat.line_dump = line_dump_data;
+                # assign line to file
                 dat_assign(temp_dat);
                 # assing values for sql insertion
-                dat_insert(temp_dat, table_name);
-                # insert data into mysql database
-            print(table_name + " data inserted");
+                if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
+                    s += 1;
+                    # increment for number of file skipped
+                else:
+                    ins += 1;
+                    # increment incrementer
+                    new_file_name = temp_dat.container_id + ".DAT";
+                    # get name for new dat file from line data 
+                    new_name_complete = os.path.join(save_path, new_file_name);
+                    # and name combined with save path
+                    new_file_data = stamp_data(temp_dat);
+                    # get data to be added to the new dat file
+                    new_file = open(new_name_complete, "w");
+                    # Creates a new file from the temp vars
+                    new_file.write(new_file_data);
+                    new_file.close();
+                    # if file exists then exists iprint(table_name + " data inserted");
+                    # print that data was inserted for files true
+                    dat_insert(temp_dat, table_name);
+                    # insert data into mysql database
+            print(table_name + "had " + ins + " files created and data inserted");
+            print(s + " files were skipped due to having blank carton and juris fields");
             # print that data was inserted for file
             os.remove(orig_file_path);
             # delete original file
