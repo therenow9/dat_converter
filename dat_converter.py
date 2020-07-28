@@ -1,7 +1,27 @@
 '''
+Pendant Automation
+Contact:(410) 939-7707
+
 @author: Jeremy Scheuerman
 
-This software was created for Pendant Automation
+@version: 1.5
+
+Created:6/--/20
+
+Last Updated:7/28/20
+
+Changes:udpated formatting added primary key,general script cleanup
+'''
+
+'''
+Secondary Variables
+
+deploy_db_user = 'Pendant';
+deploy_db_pass = 'Pendant0505';
+deploy_db_host = 'localhost';
+deploy_db_user = 'PaulCastro@eby-brown-assignment-mysql';
+deploy_db_pass = 'PC$My$SQL88';
+deploy_db_host = 'eby-brown-assignment-mysql.mysql.database.azure.com';
 '''
 # /home/jeremy/Documents/Pendant_automation/Lucas_Docs
 import os, sys;
@@ -24,12 +44,12 @@ deploy_check_interval = 15;
 # amount of time to wait in between next check IN SECONDS
 
 # database file located dat_converter/database file
-db_user = 'PaulCastro@eby-brown-assignment-mysql';
-db_pass = 'PC$My$SQL88';
-db_host = 'eby-brown-assignment-mysql.mysql.database.azure.com';
+deploy_db_user = 'PaulCastro@eby-brown-assignment-mysql';
+deploy_db_pass = 'PC$My$SQL88';
+deploy_db_host = 'eby-brown-assignment-mysql.mysql.database.azure.com';
 # insert database infromation
 
-cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host);                                                        
+cnct = connection.MySQLConnection(user=deploy_db_user, password=deploy_db_pass, host=deploy_db_host);                                                        
 # establish connection names are temporary until mysql is figured out
 print("Connected to database succesfully");
 mycursor = cnct.cursor();
@@ -78,10 +98,13 @@ class obj_dat:
 def dat_table_create(table_name):
     # define cursor
     mytable = "CREATE TABLE IF NOT EXISTS " + table_name + """
-    (record_id VARCHAR(8),route_no VARCHAR(6),
-    stop_no VARCHAR(4),container_id CHAR(15),assignment_id VARCHAR(25),
-    pick_area VARCHAR(6),pick_type VARCHAR(10),jurisdiction VARCHAR(6),
-    carton_qty VARCHAR(2))""";
+    (id BIGINT(20) NOT NULL AUTO_INCREMENT , record_id VARCHAR(8) NOT NULL,
+    container_id VARCHAR(15),assignment_id VARCHAR(25),route_no VARCHAR(6),
+    stop_no VARCHAR(4), pick_area VARCHAR(6),pick_type VARCHAR(10),
+    jurisdiction VARCHAR(6),carton_qty VARCHAR(2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    ,CONSTRAINT id_pk PRIMARY KEY (id));"""
     # create table for this file
     mycursor.execute(mytable);
     cnct.commit();
@@ -99,14 +122,14 @@ def dat_assign(obj_dat):
     obj_dat.assign_id = tem[37:62];
     obj_dat.pick_area = tem[63:69];
     obj_dat.pick_type = tem[70:80];
-    obj_dat.juris = tem[81:87];
-    obj_dat.carton_num = tem[88:90];
+    obj_dat.juris = tem[105:111];
+    obj_dat.carton_num = tem[112:114];
     # assign all fields for sql insertion
     return obj_dat;
 
 
 def dat_test(obj_dat):
-    # test values by printing them
+    # test values by printing them for debugging purposes
     print(obj_dat.line_dump);
     print(obj_dat.rec_id + '\n' + 
     obj_dat.route_num + '\n' + 
@@ -133,8 +156,8 @@ def dat_insert(obj_dat, table_name):
 
 
 def stamp_data(obj_dat):
-    juris = obj_dat.juris.strip().zfill(6);
-    cart = obj_dat.carton_num.strip().zfill(2);
+    juris = obj_dat.juris.replace(" ", "0");
+    cart = obj_dat.carton_num.replace(" ", "0");
     # trim and zero pad the vars
     data = juris + "," + "000000" + "," + "000000" + "," + cart;
     return data;
@@ -191,10 +214,11 @@ def do_everything():
             table_name = temp_name[:-1].replace("-", "_");
             dat_table_create(table_name);
             # create new table
+            s = 0;
+            # variable for skipping lines
+            ins = 0;
+            # variable for lines inserted
             for j in range(num_lines):
-                s = 0;
-                # variable for skipping files
-                ins = 0;
                 temp_dat = obj_dat();
                 # create dat object for sql insertion
                 line_dump_data = all_lines[j];
@@ -203,28 +227,33 @@ def do_everything():
                 # assign line to file
                 dat_assign(temp_dat);
                 # assing values for sql insertion
+                # dat_test(temp_dat);
+                # test those values
                 if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
                     s += 1;
                     # increment for number of file skipped
                 else:
-                    ins += 1;
-                    # increment incrementer
-                    new_file_name = temp_dat.container_id + ".DAT";
-                    # get name for new dat file from line data 
-                    new_name_complete = os.path.join(save_path, new_file_name);
-                    # and name combined with save path
-                    new_file_data = stamp_data(temp_dat);
-                    # get data to be added to the new dat file
-                    new_file = open(new_name_complete, "w");
-                    # Creates a new file from the temp vars
-                    new_file.write(new_file_data);
-                    new_file.close();
-                    # if file exists then exists iprint(table_name + " data inserted");
-                    # print that data was inserted for files true
-                    dat_insert(temp_dat, table_name);
-                    # insert data into mysql database
-            print(table_name + "had " + ins + " files created and data inserted");
-            print(s + " files were skipped due to having blank carton and juris fields");
+                    if temp_dat.container_id == "":
+                        pass;
+                        # dont do anything
+                    else:
+                        ins += 1;
+                        # increment incrementer
+                        new_file_name = temp_dat.container_id + ".DAT";
+                        # get name for new dat file from line data 
+                        new_name_complete = os.path.join(save_path, new_file_name);
+                        # and name combined with save path
+                        new_file_data = stamp_data(temp_dat);
+                        # get data to be added to the new dat file
+                        new_file = open(new_name_complete, "w");
+                        # Creates a new file from the temp vars
+                        new_file.write(new_file_data);
+                        new_file.close();
+                        # print that data was inserted for files true
+                        dat_insert(temp_dat, table_name);
+                        # insert data into mysql database
+            print(str(table_name) + " had " + str(ins) + " files created and data inserted");
+            print(str(s) + " files were skipped due to having blank carton and juris fields");
             # print that data was inserted for file
             os.remove(orig_file_path);
             # delete original file
