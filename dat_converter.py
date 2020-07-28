@@ -227,6 +227,8 @@ def do_everything():
                 # assign line to file
                 dat_assign(temp_dat);
                 # assing values for sql insertion
+                dat_insert(temp_dat, table_name);
+                # insert data into mysql database
                 # dat_test(temp_dat);
                 # test those values
                 if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
@@ -250,8 +252,6 @@ def do_everything():
                         new_file.write(new_file_data);
                         new_file.close();
                         # print that data was inserted for files true
-                        dat_insert(temp_dat, table_name);
-                        # insert data into mysql database
             print(str(table_name) + " had " + str(ins) + " files created and data inserted");
             print(str(s) + " files were skipped due to having blank carton and juris fields");
             # print that data was inserted for file
