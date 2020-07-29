@@ -4,18 +4,17 @@ Contact:(410) 939-7707
 
 @author: Jeremy Scheuerman
 
-@version: 1.5
+@version: 1.7
 
 Created:6/--/20
 
-Last Updated:7/28/20
+Last Updated:7/29/20
 
-Changes:udpated formatting added primary key,general script cleanup
+Changes:fixed line at the end
 '''
 
 '''
-Secondary Variables
-
+Secondary Variables (for quick access)
 deploy_db_user = 'Pendant';
 deploy_db_pass = 'Pendant0505';
 deploy_db_host = 'localhost';
@@ -227,8 +226,13 @@ def do_everything():
                 # assign line to file
                 dat_assign(temp_dat);
                 # assing values for sql insertion
-                dat_insert(temp_dat, table_name);
-                # insert data into mysql database
+                if temp_dat.rec_id == "        ":
+                    pass;
+                # get rid of blank line at the end of dat file
+                else:
+                    dat_insert(temp_dat, table_name);
+                    # insert data into mysql database
+                
                 # dat_test(temp_dat);
                 # test those values
                 if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
