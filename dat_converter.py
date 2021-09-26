@@ -15,12 +15,12 @@ Changes:fixed line at the end
 
 '''
 Secondary Variables (for quick access)
-deploy_db_user = 'Pendant';
-deploy_db_pass = 'Pendant0505';
+deploy_db_user = 'User';
+deploy_db_pass = 'Password';
 deploy_db_host = 'localhost';
-deploy_db_user = 'PaulCastro@eby-brown-assignment-mysql';
-deploy_db_pass = 'PC$My$SQL88';
-deploy_db_host = 'eby-brown-assignment-mysql.mysql.database.azure.com';
+deploy_db_user = 'JohnDoe@eby-brown-assignment-mysql';
+deploy_db_pass = 'Password';
+deploy_db_host = 'filler-mysql.mysql.database.azure.com';
 '''
 # /home/jeremy/Documents/Pendant_automation/Lucas_Docs
 import os, sys;
@@ -43,8 +43,8 @@ deploy_check_interval = 15;
 # amount of time to wait in between next check IN SECONDS
 
 # database file located dat_converter/database file
-deploy_db_user = 'PaulCastro@eby-brown-assignment-mysql';
-deploy_db_pass = 'PC$My$SQL88';
+deploy_db_user = 'John Doe@eby-brown-assignment-mysql';
+deploy_db_pass = 'Password';
 deploy_db_host = 'eby-brown-assignment-mysql.mysql.database.azure.com';
 # insert database infromation
 
